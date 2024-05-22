@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import com.topic3.android.reddit.routing.BackButtonAction
 
 
 private const val SEARCH_DELAY_MILLIS = 300L
@@ -77,8 +78,11 @@ fun ChooseCommunityScreen(viewModel: MainViewModel, modifier: Modifier = Modifie
         )
         SearchedCommunities(communities, viewModel, modifier)
     }
-}
 
+BackButtonAction {
+    RedditRouter.goBack()
+}
+}
 
 @Composable
 fun SearchedCommunities(
