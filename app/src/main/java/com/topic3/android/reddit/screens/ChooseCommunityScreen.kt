@@ -37,8 +37,48 @@ private val defaultCommunities = listOf("raywenderlich", "androiddev", "puppies"
 
 @Composable
 fun ChooseCommunityScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
-    //TODO Add your code here
+    val scope = rememberCoroutineScope()
+    val communities: List<String> by viewModel.subreddits.observeAsState(emptyList())
+    var searchedText by remember { mutableStateOf("") }
+    var currentJob by remember { mutableStateOf<Job?>(null) }
+    val activeColor = MaterialTheme.colors.onSurface
+
+    LaunchedEffect(Unit){
+        viewModel.searchCommunities(searchedText)
+    }
+    Column {
+        ChooseCommunityTopBar()
+        TextField(value = searchedText,
+            onValueChange = {
+                searchedText = it
+                currentJob?.cancel()
+                currentJob = scope.async {
+                    delay(SEARCH_DELAY_MILLIS)
+                    viewModel.searchCommunities(searchedText)
+                }
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = stringResource(id = R.string.search)
+                )
+            },
+            label = { Text(stringResource(R.string.search))
+            },
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = activeColor,
+                focusedLabelColor = activeColor,
+                cursorColor = activeColor,
+                backgroundColor = MaterialTheme.colors.surface
+            )
+        )
+        SearchedCommunities(communities, viewModel, modifier)
+    }
 }
+
 
 @Composable
 fun SearchedCommunities(
